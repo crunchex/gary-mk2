@@ -7,13 +7,13 @@
  *      Author: Saad Ahmad ( http://www.saadahmad.ca )
  */
 
-#include "../PWM.h"
+#include "../lib/PWM.h"
 #include <ctime>
 #include <string>
 
 int main() {
 	const int delayMS = 50;
-	const long periodNS = 2 * MILLISECONDS_TO_NANOSECONDS;
+	const long periodNS = 2 * MS_TO_NS;
 	// Since both pins share the same channel, their periods must be the same
 	PWM::Pin pinA("P8_13", periodNS);
 	PWM::Pin pinB("P8_19", periodNS);
