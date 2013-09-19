@@ -7,36 +7,30 @@
 #include "PWM.h"
 #include <unistd.h>
 
-namespace PWM
-{
-	// A bunch of helper functions to get us locations in the file system.
-	// They are used so that we can manipulate the pwm driver through the /sys interface
-	std::string GetFullNameOfFileInDirectory(const std::string & dirName, const std::string & fileNameToFind)
-	{
+namespace PWM {
+	/* Helper functions to get us locations in the file system.
+	 * They are used to manipulate the pwm driver through the /sys
+	 * interface */
+	std::string GetFullNameOfFileInDirectory(const std::string & dirName, const std::string & fileNameToFind) {
 		DIR *pDir;
 
 		dirent *pFile;
-		if ((pDir = opendir(dirName.c_str())) == NULL)
-		{
+		if ((pDir = opendir(dirName.c_str())) == NULL) {
 			std::cout << "Directory name: " << dirName << " doesnt exist!" << std::endl;
 			throw std::bad_exception();
 		}
-		while ((pFile = readdir(pDir)) != NULL)
-		{
+		while ((pFile = readdir(pDir)) != NULL) {
 			std::string currentFileName = (pFile->d_name);
-			if (currentFileName.find(fileNameToFind) != std::string::npos)
-			{
+			if (currentFileName.find(fileNameToFind) != std::string::npos) {
 				return currentFileName;
 			}
 		}
 		return std::string("");
 	}
 
-	std::string GetCapeManagerSlotsPath()
-	{
+	std::string GetCapeManagerSlotsPath() {
 		static std::string g_capeManagerSlotsPath;
-		if (g_capeManagerSlotsPath.length() <= 0)
-		{
+		if (g_capeManagerSlotsPath.length() <= 0) {
 #if DEBUG_VERBOSE_OUTPUT
 			std::cout << "Setting up cape manager path" << std::endl;
 #endif
@@ -47,11 +41,9 @@ namespace PWM
 		return g_capeManagerSlotsPath;
 	}
 
-	std::string GetOCPPath()
-	{
+	std::string GetOCPPath() {
 		static std::string g_ocpPath;
-		if (g_ocpPath.length() == 0)
-		{
+		if (g_ocpPath.length() == 0) {
 			std::string ocpBasePath("/sys/devices/");
 			std::string ocpName = GetFullNameOfFileInDirectory(ocpBasePath, std::string("ocp."));
 			g_ocpPath = ocpBasePath + ocpName + '/';
@@ -59,20 +51,17 @@ namespace PWM
 		return g_ocpPath;
 	}
 
-	int GetCapeManagerSlot(const std::string & moduleName)
-	{
+	int GetCapeManagerSlot(const std::string & moduleName) {
 #if DEBUG_VERBOSE_OUTPUT
 		std::cout << "Trying to find slot for module: " << moduleName << std::endl;
 #endif
 		std::ifstream in(GetCapeManagerSlotsPath().c_str());
 		in.exceptions(std::ios::badbit);
 		int slot = -1;
-		while (in >> slot)
-		{
+		while (in >> slot) {
 			std::string restOfLine;
 			std::getline(in, restOfLine);
-			if (restOfLine.find(moduleName) != std::string::npos)
-			{
+			if (restOfLine.find(moduleName) != std::string::npos) {
 #if DEBUG_VERBOSE_OUTPUT
 				std::cout << "Found Module: " << moduleName << " at slot: " << slot << std::endl;
 #endif
@@ -84,11 +73,9 @@ namespace PWM
 #endif
 		return -1;
 	}
-	void LoadDeviceTreeModule(const std::string & name)
-	{
+	void LoadDeviceTreeModule(const std::string & name) {
 		int slot = GetCapeManagerSlot(name);
-		if (slot == -1)
-		{
+		if (slot == -1) {
 #if DEBUG_VERBOSE_OUTPUT
 			std::cout << "Adding Module: " << name << std::endl;
 			std::cout << "Its going in: " << GetCapeManagerSlotsPath() << std::endl;
@@ -96,19 +83,15 @@ namespace PWM
 			WriteToFile(GetCapeManagerSlotsPath(), name);
 
 			usleep(MODULE_DELAY_TIME_US);
-		}
-		else
-		{
+		} else {
 #if DEBUG_VERBOSE_OUTPUT
 			std::cout << "Module " << name << " is already in here!" << std::endl;
 #endif
 		}
 	}
-	void UnloadDeviceTreeModule(const std::string name)
-	{
+	void UnloadDeviceTreeModule(const std::string name) {
 		int currentSlot = GetCapeManagerSlot(name);
-		if (currentSlot == -1)
-		{
+		if (currentSlot == -1) {
 			std::cout << "Why is the module " << name << " being unloaded when its not in use?" << std::endl;
 			throw std::bad_exception();
 		}

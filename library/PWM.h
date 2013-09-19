@@ -15,24 +15,23 @@
 #include <sstream>
 #include <iostream>
 
-const int MICRSECONDS_TO_NANOSECONDS = 1000;
-const int MILLISECONDS_TO_MICROSECONDS = 1000;
-const int MILLISECONDS_TO_NANOSECONDS = MILLISECONDS_TO_MICROSECONDS * MICRSECONDS_TO_NANOSECONDS;
-const long MODULE_DELAY_TIME_US = 100 * MILLISECONDS_TO_MICROSECONDS; //  Time to wait for module to be loaded and the sysfs interface setup
+const int US_TO_NS = 1000;
+const int MS_TO_US = 1000;
+const int MS_TO_NS = MS_TO_US * US_TO_NS;
+
+//  Time to wait for module to be loaded and the sysfs interface setup
+const long MODULE_DELAY_TIME_US = 100 * MS_TO_US; 
 
 #define DEBUG_VERBOSE_OUTPUT 0
 
-namespace PWM
-{
-	template<class T> inline std::string ToString(const T & value)
-	{
+namespace PWM {
+	template<class T> inline std::string ToString(const T & value)	{
 		std::stringstream ss;
 		ss << value;
 		return ss.str();
 	}
 
-	inline void WriteToFile(const std::string & filePath, const std::string & value)
-	{
+	inline void WriteToFile(const std::string & filePath, const std::string & value) {
 #if DEBUG_VERBOSE_OUTPUT
 		std::cout << "Writing: " << value << " to: " << filePath << std::endl;
 #endif
@@ -44,8 +43,9 @@ namespace PWM
 	}
 
 
-	// A bunch of helper functions to get us locations in the file system.
-	// They are used so that we can manipulate the pwm driver through the /sys interface
+	/* Helper functions to get us locations in the file system.
+	 * They are used to manipulate the pwm driver through the /sys
+	 * interface */
 	std::string GetFullNameOfFileInDirectory(const std::string & dirName, const std::string & fileNameToFind);
 	std::string GetCapeManagerSlotsPath();
 	std::string GetOCPPath();
@@ -53,16 +53,13 @@ namespace PWM
 	void LoadDeviceTreeModule(const std::string & name);
 	void UnloadDeviceTreeModule(const std::string name);
 
-	class Pin
-	{
+	class Pin {
 	public:
-		enum RunStatus
-		{
+		enum RunStatus {
 			Free = -2, WaitingForSetp, Disabled, Enabled,
 		};
-		enum Polarity
-		{
-			PolaritryHigh = 0, PolarityLow,
+		enum Polarity {
+			PolarityHigh = 0, PolarityLow,
 		};
 
 	private:
@@ -78,83 +75,64 @@ namespace PWM
 		RunStatus m_runStatus;
 
 	public:
-		const std::string &GetDutyFilePath() const
-		{
+		const std::string &GetDutyFilePath() const {
 			return m_dutyFilePath;
 		}
-		const std::string &GetPeriodFilePath() const
-		{
+		const std::string &GetPeriodFilePath() const {
 			return m_periodFilePath;
 		}
-		const std::string &GetPolarityFilePath() const
-		{
+		const std::string &GetPolarityFilePath() const {
 			return m_polarityFilePath;
-		}
-		const std::string &GetPinName() const
-		{
+		} const std::string &GetPinName() const {
 			return m_pinName;
 		}
-		const std::string &GetRunFilePath() const
-		{
+		const std::string &GetRunFilePath() const {
 			return m_runFilePath;
 		}
 
-		const RunStatus &GetRunStatus() const
-		{
+		const RunStatus &GetRunStatus() const {
 			return m_runStatus;
 		}
 
-		const long &GetPeriodNS() const
-		{
+		const long &GetPeriodNS() const {
 			return m_periodNS;
 		}
-		const Polarity &GetPolarity() const
-		{
+		const Polarity &GetPolarity() const {
 			return m_polarity;
 		}
-		const long &GetDutyNS() const
-		{
+		const long &GetDutyNS() const {
 			return m_dutyNS;
 		}
 
 	private:
-		void WriteDutyNSToFile()
-		{
+		void WriteDutyNSToFile() {
 			WriteToFile(GetDutyFilePath(), ToString(GetDutyNS()));
 		}
-		void WritePeriodNSToFile()
-		{
+		void WritePeriodNSToFile() {
 			WriteToFile(GetPeriodFilePath(), ToString(GetPeriodNS()));
 		}
-		void WritePolarityToFile()
-		{
-			WriteToFile(GetPolarityFilePath(), GetPolarity() == PolaritryHigh ? std::string("0") : std::string("1"));
+		void WritePolarityToFile() {
+			WriteToFile(GetPolarityFilePath(), GetPolarity() == PolarityHigh ? std::string("0") : std::string("1"));
 		}
 
 	public:
-		void SetDutyNS(const long & dutyNS)
-		{
+		void SetDutyNS(const long & dutyNS) {
 			m_dutyNS = std::min(dutyNS, GetPeriodNS());
 			if (GetRunStatus() == Enabled)
 				WriteDutyNSToFile();
 		}
-		void SetDutyUS(const int &dutyUS)
-		{
-			SetDutyNS((long) dutyUS * MICRSECONDS_TO_NANOSECONDS);
+		void SetDutyUS(const int &dutyUS) {
+			SetDutyNS((long) dutyUS * US_TO_NS);
 		}
-		void SetDutyMS(const int &dutyMS)
-		{
-			SetDutyNS((long) dutyMS * MILLISECONDS_TO_NANOSECONDS);
+		void SetDutyMS(const int &dutyMS) {
+			SetDutyNS((long) dutyMS * MS_TO_NS);
 		}
-		void SetDutyPercent(const float &percent)
-		{
+		void SetDutyPercent(const float &percent) {
 			SetDutyNS(long(GetPeriodNS() * percent));
 		}
 
-		void SetPeriodNS(const long & periodNS)
-		{
-			if (GetRunStatus() == Enabled || GetRunStatus() == Disabled)
-			{
+		void SetPeriodNS(const long & periodNS) {
+			if (GetRunStatus() == Enabled || GetRunStatus() == Disabled) {
 				std::cout << "Trying to set the period but we need to release the PWM module first!" << std::endl;
 				throw std::bad_exception();
 				return;
@@ -163,35 +141,27 @@ namespace PWM
 			if (GetRunStatus() == Enabled)
 				WritePeriodNSToFile();
 		}
-		void SetPeriodUS(const int &periodUS)
-		{
-			SetPeriodNS((long) periodUS * MICRSECONDS_TO_NANOSECONDS);
+		void SetPeriodUS(const int &periodUS) {
+			SetPeriodNS((long) periodUS * US_TO_NS);
 		}
-		void SetPeriodMS(const int &periodMS)
-		{
-			SetPeriodNS((long) periodMS * MILLISECONDS_TO_NANOSECONDS);
+		void SetPeriodMS(const int &periodMS) {
+			SetPeriodNS((long) periodMS * MS_TO_NS);
 		}
 
-		void SetPolarity(const Polarity & polarity)
-		{
+		void SetPolarity(const Polarity & polarity) {
 			m_polarity = polarity;
 			if (GetRunStatus() == Enabled)
 				WritePolarityToFile();
 		}
 
 	private:
-		void SetRunStatus(const RunStatus & newRunStatus)
-		{
-			if (newRunStatus != GetRunStatus())
-			{
-				if (newRunStatus == Disabled)
-				{
+		void SetRunStatus(const RunStatus & newRunStatus) {
+			if (newRunStatus != GetRunStatus()) {
+				if (newRunStatus == Disabled) {
 					WriteToFile(GetRunFilePath(), std::string("0"));
 				}
-				else if (newRunStatus == Enabled)
-				{
-					if (GetRunStatus() == Free)
-					{
+				else if (newRunStatus == Enabled) {
+					if (GetRunStatus() == Free) {
 						InitPinFS();
 					}
 					// Force write the file values out
@@ -200,11 +170,8 @@ namespace PWM
 					WritePolarityToFile();
 
 					WriteToFile(GetRunFilePath(), std::string("1"));
-				}
-				else if (newRunStatus == Free)
-				{
-					if (GetRunStatus() != Disabled)
-					{
+				} else if (newRunStatus == Free) {
+					if (GetRunStatus() != Disabled) {
 						SetRunStatus(Disabled);
 					}
 					UnloadDeviceTreeModule(GetPinName());
@@ -213,27 +180,22 @@ namespace PWM
 			m_runStatus = newRunStatus;
 		}
 	public:
-		void Enable()
-		{
+		void Enable() {
 			SetRunStatus(Enabled);
 		}
-		void Disable()
-		{
+		void Disable() {
 			SetRunStatus(Disabled);
 		}
-		void Release()
-		{
+		void Release() {
 			SetRunStatus(Free);
 		}
 
 	public:
-		~Pin()
-		{
+		~Pin() {
 			Release();
 		}
-		Pin(const std::string & pinName, const long & periodNS = 20 * MILLISECONDS_TO_NANOSECONDS, const long & dutyNS = 1 * MILLISECONDS_TO_NANOSECONDS) :
-			m_pinName(pinName)
-		{
+		Pin(const std::string & pinName, const long & periodNS = 20 * MS_TO_NS, const long & dutyNS = 1 * MS_TO_NS) :
+			m_pinName(pinName) {
 			// If the pin is already in use then we need to free it!
 			if (GetCapeManagerSlot(GetPinName()) != -1)
 				UnloadDeviceTreeModule(GetPinName());
@@ -242,13 +204,12 @@ namespace PWM
 
 			SetPeriodNS(periodNS);
 			SetDutyNS(dutyNS);
-			SetPolarity(PolaritryHigh);
+			SetPolarity(PolarityHigh);
 
 			InitPinFS();
 		}
 
-		void InitPinFS()
-		{
+		void InitPinFS() {
 			LoadDeviceTreeModule(std::string("am33xx_pwm"));
 			std::string pinModule = std::string("sc_pwm_") + GetPinName();
 			LoadDeviceTreeModule(pinModule);

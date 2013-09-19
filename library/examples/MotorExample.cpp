@@ -27,10 +27,8 @@ MotorControl motorControls[] = { MotorControl(PIN_MOTOR_LEFT, MIN_SPEED, MIN_SPE
 #include <signal.h>
 
 // Stop all the motors when we interrupt the program so they don't keep going
-void sig_handler(int signum)
-{
-	for (unsigned int iMotor = 0; iMotor < 3; iMotor++)
-	{
+void sig_handler(int signum) {
+	for (unsigned int iMotor = 0; iMotor < 3; iMotor++) {
 		MotorControl & motor = motorControls[iMotor];
 		motor.SetOutputValue(0);
 		motor.UpdatePWMSignal();
@@ -39,31 +37,26 @@ void sig_handler(int signum)
 	exit(signum);
 }
 
-int main()
-{
+int main() {
 	signal(SIGINT, sig_handler);
 	signal(SIGSEGV, sig_handler);
 	signal(SIGQUIT, sig_handler);
 	signal(SIGHUP, sig_handler);
 	signal(SIGABRT, sig_handler);
 
-	for (int iMotor = 0; iMotor < 3; iMotor++)
-	{
+	for (int iMotor = 0; iMotor < 3; iMotor++) {
 		motorControls[iMotor].Enable();
 	}
 
-	while (true)
-	{
+	while (true) {
 		// Increase by 10% each time and view the output PPM signal
-		for (int i = 0; i < 100; i += 10)
-		{
+		for (int i = 0; i < 100; i += 10) {
 			std::clock_t startTime = std::clock();
-			while ( ((clock() - startTime) * 1000.0 / CLOCKS_PER_SEC) < 500  )
-			{
-				for (int iMotor = 0; iMotor < 3; iMotor++)
-				{
+			while (((clock() - startTime) * 1000.0 / CLOCKS_PER_SEC) < 500) {
+				for (int iMotor = 0; iMotor < 3; iMotor++) {
 					MotorControl & motor = motorControls[iMotor];
-					motor.SetOutputValue((i + iMotor * 20) % 100); // Offset the motors a bit
+					// Offset the motors a bit
+					motor.SetOutputValue((i + iMotor * 20) % 100);
 					motor.UpdatePWMSignal();
 				}
 			}
