@@ -1,0 +1,36 @@
+#### Copied from github/gitignore ####
+
+#### C++
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Compiled dynamic libraries
+*.so
+*.dylib
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+#### C
+# Object files
+*.o
+*.ko
+
+# Libraries
+*.lib
+*.a
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
