@@ -81,6 +81,23 @@ int main()
 		servoControls[i].Enable();
 	}
 
+	std::clock_t start = std::clock();
+
+	int state = 0;
+
+	while (true) {
+		std::clock_t elapsed = clock() - start;
+		if (elapsed / CLOCKS_PER_SEC > 5) {
+			if (state == 4) {
+				state = 0;
+			} else {
+				state++;
+			}
+			move(state);
+			start = clock();
+		}
+	}
+
 	/*while (true) {
 		// Increase by 10% each time and view the output PPM signal
 		for (int i = 0; i < 100; i += 10) {
