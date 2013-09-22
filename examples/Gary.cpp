@@ -10,7 +10,7 @@
 
 #include <string>
 #include "../lib/PWM.h"
-#include "../lib/Servo.h"
+#include "../lib/Motor.h"
 #include <ctime>
 #include <cstdlib>
 #include <signal.h>
@@ -63,7 +63,7 @@ int main()
 				for (int j = 1; j <= 2; j++) {
 					ServoControl & servo = servoControls[j];
 					// Offset the servos a bit
-					servo.Angle((i + j * 20) % 100);
+					servo.SetAngle((i + j * 20) % 100);
 					servo.UpdatePWMSignal();
 				}
 			}
