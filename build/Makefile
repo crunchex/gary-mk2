@@ -29,7 +29,7 @@ BasicPWMExample.o: ../examples/BasicPWMExample.cpp
 	$(CC) $(CFLAGS) -c ../examples/BasicPWMExample.cpp
 
 PWM.o: ../libraries/PWM.cpp
-	$(CC) -c ../libraries/PWM.cpp
+	$(CC) $(CFLAGS) -c ../libraries/PWM.cpp
 
 clean:
 	$(RM) *o *~ ../bin/*
