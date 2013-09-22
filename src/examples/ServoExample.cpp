@@ -1,10 +1,11 @@
 /*
- * MotorExample.cpp
+ * ServoExample.cpp
  *
- *	Example of PWM used to control motors via an esc
+ *	Example of PWM used to control servos via an esc
  *
  *  Created on: May 29, 2013
  *      Author: Saad Ahmad ( http://www.saadahmad.ca )
+ * 		Modified: Mike Lewis ( http://alphalem.com )
  */
 
 #include <string>
@@ -66,12 +67,22 @@ int main() {
 
 	while (true) {
 		// Increase by 10 degrees (CW) each time
-		for (int i = 0; i < 100; i += 5) {
+		for (int i = 90; i < 180; i += 5) {
 			servo_test(i);
 		}
 		
 		// Decrease by 10 degrees (CCW) each time
-		for (int i = 100; i > 0; i -= 5) {
+		for (int i = 180; i > 90; i -= 5) {
+			servo_test(i);
+		}
+		
+		// Decrease by 10 degrees (CCW) each time
+		for (int i = 90; i > 0; i -= 5) {
+			servo_test(i);
+		}
+		
+		// Increase by 10 degrees (CW) each time
+		for (int i = 0; i < 90; i += 5) {
 			servo_test(i);
 		}
 	}
