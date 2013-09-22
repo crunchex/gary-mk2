@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS =
 
-all: MotorExample BasicPWMExample
+all: Gary MotorExample BasicPWMExample
 	@echo Executables located in bin
 
 Gary: Gary.o PWM.o
