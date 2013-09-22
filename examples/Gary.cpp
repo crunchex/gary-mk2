@@ -1,51 +1,58 @@
 /*
- * MotorExample.cpp
+ * Gary.cpp
  *
- *	Example of PWM used to control motors via an esc
+ *	Created by on September 21, 2013 by:
+ * 		Mike Lewis (Alphalem) (http://www.alphalem.com)
  *
- *  Created on: May 29, 2013
- *      Author: Saad Ahmad ( http://www.saadahmad.ca )
+ *  Based on ServoExample.cpp by:
+ *      Saad Ahmad (http://www.saadahmad.ca)
  */
 
 #include <string>
 #include "../lib/PWM.h"
-#include "../lib/Motor.h"
+#include "../lib/Servo.h"
 #include <ctime>
 #include <cstdlib>
-
-const float MIN_SPEED = 0;
-const float MAX_SPEED = 100;
-const int MIN_MOTOR_PULSE_TIME = 1000;
-const int MAX_MOTOR_PULSE_TIME = 2000;
-const std::string PIN_MOTOR_YAW("P8_13");
-const std::string PIN_MOTOR_RIGHT("P8_19");
-const std::string PIN_MOTOR_LEFT("P9_14");
-
-MotorControl motorControls[] = { MotorControl(PIN_MOTOR_LEFT, MIN_SPEED, MIN_SPEED, MAX_SPEED), MotorControl(PIN_MOTOR_RIGHT, MIN_SPEED, MIN_SPEED, MAX_SPEED), MotorControl(PIN_MOTOR_YAW, MIN_SPEED, MIN_SPEED, MAX_SPEED), };
-
-
 #include <signal.h>
 
-// Stop all the motors when we interrupt the program so they don't keep going
-void sig_handler(int signum) {
-	for (unsigned int iMotor = 0; iMotor < 3; iMotor++) {
-		MotorControl & motor = motorControls[iMotor];
-		motor.SetOutputValue(0);
-		motor.UpdatePWMSignal();
+const float MIN_SPEED = 0;
+const float CTR_SPEED = 90;
+const float MAX_SPEED = 180;
+const int MIN_SERVO_PULSE_TIME = 750;
+const int CTR_SERVO_PULSE_TIME = 1475;
+const int MAX_SERVO_PULSE_TIME = 2250;
+const std::string PIN_SERVO_LEFT("P9_14");
+const std::string PIN_SERVO_RIGHT("P8_13");
+
+ServoControl servoControls[] = {
+	ServoControl(PIN_SERVO_LEFT, MIN_SPEED, MIN_SPEED, MAX_SPEED,
+			MIN_SERVO_PULSE_TIME, MAX_SERVO_PULSE_TIME),
+	ServoControl(PIN_SERVO_RIGHT, MIN_SPEED, MIN_SPEED, MAX_SPEED,
+			MIN_SERVO_PULSE_TIME, MAX_SERVO_PULSE_TIME)
+};
+
+// Stop all the servos when we interrupt the program
+void sig_handler(int signum)
+{
+	for (int i = 1; i <= 2; i++) {
+		ServoControl & servo = servoControls[i];
+		servo.SetOutputValue(0);
+		servo.UpdatePWMSignal();
 	}
 
 	exit(signum);
 }
 
-int main() {
+int main()
+{
 	signal(SIGINT, sig_handler);
 	signal(SIGSEGV, sig_handler);
 	signal(SIGQUIT, sig_handler);
 	signal(SIGHUP, sig_handler);
 	signal(SIGABRT, sig_handler);
 
-	for (int iMotor = 0; iMotor < 3; iMotor++) {
-		motorControls[iMotor].Enable();
+	for (int i = 1; i <= 2; i++) {
+		servoControls[i].Enable();
 	}
 
 	while (true) {
@@ -53,11 +60,11 @@ int main() {
 		for (int i = 0; i < 100; i += 10) {
 			std::clock_t startTime = std::clock();
 			while (((clock() - startTime) * 1000.0 / CLOCKS_PER_SEC) < 500) {
-				for (int iMotor = 0; iMotor < 3; iMotor++) {
-					MotorControl & motor = motorControls[iMotor];
-					// Offset the motors a bit
-					motor.SetOutputValue((i + iMotor * 20) % 100);
-					motor.UpdatePWMSignal();
+				for (int j = 1; j <= 2; j++) {
+					ServoControl & servo = servoControls[j];
+					// Offset the servos a bit
+					servo.Angle((i + j * 20) % 100);
+					servo.UpdatePWMSignal();
 				}
 			}
 		}
