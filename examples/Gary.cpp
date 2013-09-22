@@ -9,8 +9,8 @@
  */
 
 #include <string>
-#include "../lib/PWM.h"
-#include "../lib/Motor.h"
+#include "../libraries/PWM.h"
+#include "../libraries/Motor.h"
 #include <ctime>
 #include <cstdlib>
 #include <signal.h>

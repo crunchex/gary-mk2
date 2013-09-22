@@ -7,7 +7,7 @@
  *      Author: Saad Ahmad ( http://www.saadahmad.ca )
  */
 
-#include "../lib/PWM.h"
+#include "../libraries/PWM.h"
 #include <ctime>
 #include <string>
 
