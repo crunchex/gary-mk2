@@ -8,8 +8,8 @@
  */
 
 #include <string>
-#include "../libraries/PWM.h"
-#include "../libraries/Motor.h"
+#include "../../include/PWM.h"
+#include "../../include/Motor.h"
 #include <ctime>
 #include <cstdlib>
 

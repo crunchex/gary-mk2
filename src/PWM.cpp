@@ -4,7 +4,7 @@
  *  Created on: May 30, 2013
  *      Author: Saad Ahmad ( http://www.saadahmad.ca )
  */
-#include "PWM.h"
+#include "../include/PWM.h"
 #include <unistd.h>
 
 namespace PWM {
